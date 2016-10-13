@@ -1,0 +1,33 @@
+#!/usr/bin/expect -f
+
+set user "root"
+set password "BUdG1Vb0Vula"
+
+# Get the list of hosts, one per line #####
+set f [open "foo"]
+set hosts [split [read $f] "\n"]
+close $f
+
+# Get the commands to run, one per line
+set f [open "ipmicommands.txt"]
+set commands [split [read $f] "\n"]
+close $f
+
+# Iterate over the hosts
+foreach host $hosts {
+    spawn ssh $user@$host
+    expect "Password:"
+    send "$password\r"
+
+    # Iterate over the commands
+    foreach cmd $commands {
+        expect "~ # "
+        send "$cmd\r"
+    }
+
+    # Tidy up
+    expect "~ # "
+    send "exit\r"
+    expect eof
+    #close
+}
